@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une Recette</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Ajouter une Nouvelle Recette</h1>
+    <p><a href="index.html">Retour à la liste</a></p>
+
+    <form id="add-recipe-form">
+        <div id="messages"></div>
+
+        <label for="title">Titre de la Recette *</label>
+        <input type="text" id="title" name="title" required minlength="3">
+
+        <label for="category">Catégorie *</label>
+        <select id="category" name="category" required>
+            <option value="">-- Choisir --</option>
+            <option value="Entrée">Entrée</option>
+            <option value="Plat Principal">Plat Principal</option>
+            <option value="Dessert">Dessert</option>
+        </select>
+
+        <label for="photo-file">Photo de la Recette</label>
+        <input type="file" id="photo-file" name="recipe-photo" accept="image/*">
+        <div id="upload-status" style="margin-top: 10px;"></div>
+
+        <label for="ingredients">Ingrédients (séparés par des virgules) *</label>
+        <textarea id="ingredients" name="ingredients" required></textarea>
+
+        <label for="time">Temps de Préparation (min) *</label>
+        <input type="number" id="time" name="preparation_time_min" required min="1">
+
+        <label>
+            <input type="checkbox" id="is_vegetarian" name="is_vegetarian"> Végétarien
+        </label>
+
+        <button type="submit">Enregistrer la Recette</button>
+    </form>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

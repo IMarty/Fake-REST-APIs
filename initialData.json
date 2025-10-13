@@ -1,0 +1,49 @@
+{
+    "recipes": [
+        {
+            "id": 501,
+            "title": "Gâteau au Chocolat Ultra-Noir",
+            "category": "Dessert",
+            "likes": 42,
+            "preparation_time_min": 45,
+            "ingredients": [
+                "Chocolat noir",
+                "Beurre",
+                "Farine",
+                "Œufs"
+            ],
+            "is_vegetarian": true,
+            "photo": "gateau_choc.jpg"
+        },
+        {
+            "id": 502,
+            "title": "Curry de Pois Chiches Végétal",
+            "category": "Plat Principal",
+            "likes": 15,
+            "preparation_time_min": 30,
+            "ingredients": [
+                "Pois chiches",
+                "Lait de coco",
+                "Curry",
+                "Épinards"
+            ],
+            "is_vegetarian": true,
+            "photo": "curry.jpg"
+        },
+        {
+            "id": 503,
+            "title": "Soupe à l'Oignon Gratinée",
+            "category": "Entrée",
+            "likes": 28,
+            "preparation_time_min": 60,
+            "ingredients": [
+                "Oignons",
+                "Bouillon de bœuf",
+                "Pain",
+                "Fromage"
+            ],
+            "is_vegetarian": false,
+            "photo": "soupe_oignon.jpg"
+        }
+    ]
+}

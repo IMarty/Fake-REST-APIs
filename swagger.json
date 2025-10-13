@@ -1,0 +1,272 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Recipe Vault API Didactique",
+        "version": "1.0.0",
+        "description": "API pour la gestion des recettes, incluant les opérations CRUD, la validation et l'upload de fichiers simulé."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Serveur de développement"
+        },
+        {
+            "url": "https://[VOTRE_URL_RENDER]",
+            "description": "Serveur déployé"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Recipes",
+            "description": "Gestion des recettes (CRUD, Filtrage)"
+        },
+        {
+            "name": "Files",
+            "description": "Téléversement de fichiers"
+        }
+    ],
+    "paths": {
+        "/recipes": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "READ: Liste des recettes",
+                "description": "Récupère la liste. Supporte le filtrage et le tri (ex: ?category=Dessert ou ?_sort=likes).",
+                "responses": {
+                    "200": {
+                        "description": "Liste des recettes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Recipe"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "CREATE: Ajout d'une nouvelle recette (JSON)",
+                "description": "Ajoute une nouvelle recette. Doit être en JSON et inclure le nom de la photo (après l'upload).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeCreation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Création réussie"
+                    },
+                    "400": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/recipes/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "READ: Détails d'une recette",
+                "responses": {
+                    "200": {
+                        "description": "Détails de la recette"
+                    },
+                    "404": {
+                        "description": "Recette non trouvée"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "UPDATE: Mise à jour partielle (PATCH)",
+                "description": "Utilisé pour modifier le compteur de 'likes' ou d'autres champs de la recette.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipePatch"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour réussie"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "DELETE: Suppression d'une recette",
+                "responses": {
+                    "204": {
+                        "description": "Suppression réussie"
+                    }
+                }
+            }
+        },
+        "/upload": {
+            "post": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "UPLOAD: Téléversement de la photo de recette",
+                "description": "Endpoint pour téléverser une image. **Doit être appelé via FormData.** Le serveur retourne le nom du fichier à utiliser dans la requête POST /recipes.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "recipe-photo": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "Le fichier image à téléverser."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload réussi. Retourne le nom du fichier simulé.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "filename": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur de fichier ou de format"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Recipe": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "Entrée",
+                            "Plat Principal",
+                            "Dessert"
+                        ]
+                    },
+                    "likes": {
+                        "type": "integer"
+                    },
+                    "preparation_time_min": {
+                        "type": "integer"
+                    },
+                    "ingredients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "is_vegetarian": {
+                        "type": "boolean"
+                    },
+                    "photo": {
+                        "type": "string",
+                        "description": "Nom du fichier photo (ex: 'curry.jpg'). Récupérable via /uploads/."
+                    }
+                }
+            },
+            "RecipeCreation": {
+                "type": "object",
+                "required": [
+                    "title",
+                    "ingredients",
+                    "category",
+                    "photo"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "preparation_time_min": {
+                        "type": "integer"
+                    },
+                    "ingredients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "is_vegetarian": {
+                        "type": "boolean"
+                    },
+                    "photo": {
+                        "type": "string",
+                        "description": "Nom du fichier photo obtenu après l'upload."
+                    }
+                }
+            },
+            "RecipePatch": {
+                "type": "object",
+                "properties": {
+                    "likes": {
+                        "type": "integer",
+                        "description": "Pour incrémenter le compteur de 'J'aime'."
+                    },
+                    "photo": {
+                        "type": "string",
+                        "description": "Modification de la photo (nom du fichier)."
+                    }
+                }
+            }
+        }
+    }
+}

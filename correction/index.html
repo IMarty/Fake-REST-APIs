@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Recettes du Chef - Filtrage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Le Caveau des Recettes 🍜</h1>
+    <p><a href="ajout.html">Ajouter une nouvelle recette</a></p>
+
+    <div id="reset-area" style="text-align: center; margin-bottom: 20px;">
+        <button id="reset-button">Réinitialiser les données</button>
+        <p id="reset-status" class="messages"></p>
+    </div>
+
+    <div id="filter-buttons">
+        <button data-filter="all" class="active">Toutes les recettes</button>
+        <button data-filter="Entrée">Entrées</button>
+        <button data-filter="Plat Principal">Plats Principaux</button>
+        <button data-filter="Dessert">Desserts</button>
+    </div>
+
+    <div id="sort-area">
+        <label for="sort-select">Trier par:</label>
+        <select id="sort-select">
+            <option value="none">Par défaut</option>
+            <option value="likes-desc">Popularité (Likes décroissants)</option>
+        </select>
+    </div>
+
+    <main id="recipes-list">
+        <p>Chargement des recettes...</p>
+    </main>
+
+    <template id="recipe-card-template">
+        <article class="recipe-card">
+            <img src="" alt="Photo de la recette" class="recipe-photo">
+            <h2></h2>
+            <p>Catégorie: <span class="recipe-category"></span></p>
+            <p>Préparation: <span class="recipe-time"></span> min</p>
+            <p>Likes: <span class="recipe-likes"></span> 💖</p>
+            <button class="like-button">J'aime</button>
+            <button class="delete-button">Supprimer</button>
+        </article>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
