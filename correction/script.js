@@ -1,5 +1,5 @@
 // Remplacez par l'URL de votre déploiement Render
-const API_BASE_URL = 'http://localhost:3000'; // À changer après le déploiement
+const API_BASE_URL = 'https://fake-rest-apis.onrender.com'; // À changer après le déploiement
 
 // --- Fonctions d'aide (pour les deux pages) ---
 
