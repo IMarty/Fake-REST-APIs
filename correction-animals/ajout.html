@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admettre un Nouvel Animal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Admettre un Nouvel Animal au Refuge/Zoo</h1>
+    <p><a href="index.html">Retour au Zoopédia</a></p>
+
+    <form id="add-animal-form">
+        <div id="messages"></div>
+
+        <label for="name">Nom de l'animal *</label>
+        <input type="text" id="name" name="name" required minlength="2">
+
+        <label for="species">Espèce *</label>
+        <input type="text" id="species" name="species" required>
+
+        <label for="enclosure">Enclos/Pension *</label>
+        <input type="text" id="enclosure" name="enclosure" required>
+
+        <label for="age">Âge (années) *</label>
+        <input type="number" id="age" name="age" required min="0">
+
+        <label for="photo-file">Photo de l'animal</label>
+        <input type="file" id="photo-file" name="animal-photo" accept="image/*">
+        <div id="upload-status" style="margin-top: 10px;"></div>
+
+        <button type="submit">Enregistrer la Fiche</button>
+    </form>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

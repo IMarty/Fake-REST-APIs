@@ -45,5 +45,46 @@
             "is_vegetarian": false,
             "photo": "soupe_oignon.jpg"
         }
+    ],
+    "animals": [
+        {
+            "id": 1,
+            "name": "Léo",
+            "species": "Lion",
+            "enclosure": "Savane 1",
+            "age": 5,
+            "health_status": "Sain",
+            "adoption_status": "Non disponible",
+            "diet": [
+                "Viande"
+            ],
+            "image": "leo.png"
+        },
+        {
+            "id": 2,
+            "name": "Kira",
+            "species": "Faucon Pèlerin",
+            "enclosure": "Volerie A",
+            "age": 2,
+            "health_status": "Malade",
+            "adoption_status": "Non disponible",
+            "diet": [
+                "Petits mammifères"
+            ],
+            "image": "kira.png"
+        },
+        {
+            "id": 3,
+            "name": "Nala",
+            "species": "Chat Domestique",
+            "enclosure": "Pension B",
+            "age": 1,
+            "health_status": "Sain",
+            "adoption_status": "Disponible",
+            "diet": [
+                "Croquettes"
+            ],
+            "image": "nala.png"
+        }
     ]
 }

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Zoopédia - Gestion des Animaux</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques pour Zoopédia */
+        .status-Sain {
+            border: 3px solid #4CAF50;
+        }
+
+        .status-Malade {
+            border: 3px solid #F44336;
+        }
+
+        .status-Quarantaine {
+            border: 3px solid #FFC107;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Zoopédia 🦁 : Gestion des Enclos et Adoptions</h1>
+    <p><a href="ajout.html">Admettre un nouvel animal</a></p>
+
+    <div id="reset-area" style="text-align: center; margin-bottom: 20px;">
+        <button id="reset-button">Réinitialiser les données</button>
+        <p id="reset-status" class="messages"></p>
+    </div>
+
+    <div id="filter-buttons">
+        <button data-filter="all" class="active">Tous les animaux</button>
+        <button data-filter="Disponible">Prêt à l'adoption</button>
+        <button data-filter="Malade">Statut Malade</button>
+    </div>
+
+    <main id="animals-list">
+        <p>Chargement des fiches animales...</p>
+    </main>
+
+    <template id="animal-card-template">
+        <article class="recipe-card animal-card">
+            <img src="" alt="Photo de l'animal" class="animal-photo">
+            <h2></h2>
+            <p>Espèce: <span class="animal-species"></span></p>
+            <p>Enclos: <span class="animal-enclosure"></span></p>
+            <p>Statut Santé: <span class="animal-health"></span></p>
+
+            <button class="status-toggle-button">Statut Santé (Toggle)</button>
+            <button class="delete-button">Adoption Finalisée</button>
+        </article>
+    </template>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>

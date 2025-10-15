@@ -1,15 +1,11 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Recipe Vault API Didactique",
+        "title": "API de Formation Frontend (Recettes & Zoopédia)",
         "version": "1.0.0",
-        "description": "API pour la gestion des recettes, incluant les opérations CRUD, la validation et l'upload de fichiers simulé."
+        "description": "API didactique complète (CRUD, Validation, Multi-Projets) pour les étudiants seniors. Les données sont en mémoire et réinitialisées via POST /reset."
     },
     "servers": [
-        {
-            "url": "http://localhost:3000",
-            "description": "Serveur de développement"
-        },
         {
             "url": "https://fake-rest-apis.onrender.com",
             "description": "Serveur déployé"
@@ -18,21 +14,85 @@
     "tags": [
         {
             "name": "Recipes",
-            "description": "Gestion des recettes (CRUD, Filtrage)"
+            "description": "Gestion des recettes (CRUD, Filtrage)."
         },
         {
-            "name": "Files",
-            "description": "Téléversement de fichiers"
+            "name": "Animals",
+            "description": "Gestion des fiches animales (CRUD, Statut)."
+        },
+        {
+            "name": "System",
+            "description": "Opérations système (Upload, Reset)."
         }
     ],
     "paths": {
+        "/upload": {
+            "post": {
+                "tags": [
+                    "System"
+                ],
+                "summary": "UPLOAD: Téléversement d'une photo",
+                "description": "Endpoint générique pour téléverser une image (FormData). Le nom du champ doit être 'photo'. Retourne le nom du fichier à utiliser dans la requête POST.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "Le fichier image à téléverser (clé: 'photo')."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload réussi. Retourne le nom du fichier.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "filename": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur de fichier ou de format"
+                    }
+                }
+            }
+        },
+        "/reset": {
+            "post": {
+                "tags": [
+                    "System"
+                ],
+                "summary": "RESET: Réinitialisation de toutes les données",
+                "description": "Réinitialise les collections /recipes et /animals à leur état initial (initialData.json).",
+                "responses": {
+                    "200": {
+                        "description": "Réinitialisation effectuée avec succès."
+                    }
+                }
+            }
+        },
         "/recipes": {
             "get": {
                 "tags": [
                     "Recipes"
                 ],
                 "summary": "READ: Liste des recettes",
-                "description": "Récupère la liste. Supporte le filtrage et le tri (ex: ?category=Dessert ou ?_sort=likes).",
+                "description": "Récupère la liste. Supporte le filtrage (?category) et le tri (?_sort=likes&_order=desc).",
                 "responses": {
                     "200": {
                         "description": "Liste des recettes",
@@ -53,8 +113,8 @@
                 "tags": [
                     "Recipes"
                 ],
-                "summary": "CREATE: Ajout d'une nouvelle recette (JSON)",
-                "description": "Ajoute une nouvelle recette. Doit être en JSON et inclure le nom de la photo (après l'upload).",
+                "summary": "CREATE: Ajout d'une nouvelle recette",
+                "description": "Ajoute une nouvelle recette. Validation requise par Joi.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -86,25 +146,11 @@
                     }
                 }
             ],
-            "get": {
-                "tags": [
-                    "Recipes"
-                ],
-                "summary": "READ: Détails d'une recette",
-                "responses": {
-                    "200": {
-                        "description": "Détails de la recette"
-                    },
-                    "404": {
-                        "description": "Recette non trouvée"
-                    }
-                }
-            },
             "patch": {
                 "tags": [
                     "Recipes"
                 ],
-                "summary": "UPDATE: Mise à jour partielle (PATCH)",
+                "summary": "UPDATE: Mise à jour partielle (ex: likes ou photo)",
                 "description": "Utilisé pour modifier le compteur de 'likes' ou d'autres champs de la recette.",
                 "requestBody": {
                     "content": {
@@ -118,6 +164,9 @@
                 "responses": {
                     "200": {
                         "description": "Mise à jour réussie"
+                    },
+                    "404": {
+                        "description": "Recette non trouvée"
                     }
                 }
             },
@@ -133,48 +182,98 @@
                 }
             }
         },
-        "/upload": {
+        "/animals": {
+            "get": {
+                "tags": [
+                    "Animals"
+                ],
+                "summary": "READ: Liste des animaux",
+                "description": "Récupère la liste. Supporte le filtrage (?species ou ?health_status).",
+                "responses": {
+                    "200": {
+                        "description": "Liste des animaux",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Animal"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
-                    "Files"
+                    "Animals"
                 ],
-                "summary": "UPLOAD: Téléversement de la photo de recette",
-                "description": "Endpoint pour téléverser une image. **Doit être appelé via FormData.** Le serveur retourne le nom du fichier à utiliser dans la requête POST /recipes.",
+                "summary": "CREATE: Ajout d'un nouvel animal",
+                "description": "Ajoute une nouvelle fiche. Validation Joi requise.",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "recipe-photo": {
-                                        "type": "string",
-                                        "format": "binary",
-                                        "description": "Le fichier image à téléverser."
-                                    }
-                                }
+                                "$ref": "#/components/schemas/AnimalCreation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Création réussie"
+                    },
+                    "400": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/animals/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "patch": {
+                "tags": [
+                    "Animals"
+                ],
+                "summary": "UPDATE: Mise à jour partielle (Statut de santé/Adoption)",
+                "description": "Utilisé pour modifier le statut ou l'enclos (PATCH).",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AnimalPatch"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Upload réussi. Retourne le nom du fichier simulé.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "filename": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Mise à jour réussie"
                     },
-                    "400": {
-                        "description": "Erreur de fichier ou de format"
+                    "404": {
+                        "description": "Animal non trouvé"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Animals"
+                ],
+                "summary": "DELETE: Suppression de la fiche (Adoption/Retrait)",
+                "responses": {
+                    "204": {
+                        "description": "Suppression réussie"
                     }
                 }
             }
@@ -217,7 +316,7 @@
                     },
                     "photo": {
                         "type": "string",
-                        "description": "Nom du fichier photo (ex: 'curry.jpg'). Récupérable via /uploads/."
+                        "description": "Nom du fichier photo (ex: 'curry.jpg')."
                     }
                 }
             },
@@ -264,6 +363,92 @@
                     "photo": {
                         "type": "string",
                         "description": "Modification de la photo (nom du fichier)."
+                    }
+                }
+            },
+            "Animal": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "species": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "health_status": {
+                        "type": "string",
+                        "enum": [
+                            "Sain",
+                            "Malade",
+                            "En quarantaine"
+                        ]
+                    },
+                    "adoption_status": {
+                        "type": "string",
+                        "enum": [
+                            "Disponible",
+                            "Non disponible",
+                            "Adopté"
+                        ]
+                    },
+                    "enclosure": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string",
+                        "description": "Nom du fichier image (ex: 'leo.png')."
+                    }
+                }
+            },
+            "AnimalCreation": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "species",
+                    "enclosure",
+                    "age",
+                    "image"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "species": {
+                        "type": "string"
+                    },
+                    "enclosure": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "image": {
+                        "type": "string",
+                        "description": "Nom du fichier photo obtenu après l'upload."
+                    }
+                }
+            },
+            "AnimalPatch": {
+                "type": "object",
+                "properties": {
+                    "health_status": {
+                        "type": "string"
+                    },
+                    "adoption_status": {
+                        "type": "string"
+                    },
+                    "enclosure": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string"
                     }
                 }
             }

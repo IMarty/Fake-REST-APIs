@@ -2,7 +2,7 @@ const express = require('express');
 const Joi = require('joi');
 const fs = require('fs');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
+const swaggerDocument = require('./swagger.json'); // Assurez-vous que ce fichier est mis à jour
 const multer = require('multer');
 const path = require('path');
 
@@ -11,31 +11,36 @@ const PORT = process.env.PORT || 3000;
 
 let db;
 let nextRecipeId;
+let nextAnimalId;
 
-// Fonction pour charger et réinitialiser les données
+// Fonction pour charger et réinitialiser les données des deux projets
 function loadInitialData() {
     try {
         const initialData = JSON.parse(fs.readFileSync('./initialData.json', 'utf8'));
         db = initialData;
-        // Calculer le prochain ID disponible
-        nextRecipeId = Math.max(...db.recipes.map(r => r.id), 0) + 1;
-        console.log('Données réinitialisées avec succès.');
+
+        // Calculer les prochains ID pour les deux collections
+        const maxRecipeId = Math.max(...(db.recipes || []).map(r => r.id), 0);
+        const maxAnimalId = Math.max(...(db.animals || []).map(a => a.id), 0);
+        nextRecipeId = maxRecipeId + 1;
+        nextAnimalId = maxAnimalId + 1;
+
+        console.log('Données Multi-API réinitialisées. Prochains IDs: Recette:', nextRecipeId, ', Animal:', nextAnimalId);
     } catch (e) {
         console.error("Erreur lors du chargement des données initiales:", e);
-        db = { recipes: [] };
+        db = { recipes: [], animals: [] };
         nextRecipeId = 1;
+        nextAnimalId = 1;
     }
 }
 
-// Chargement initial au démarrage
 loadInitialData();
 
 // --- 2. Middlewares de Base ---
 app.use(express.json());
-
-// Servir les fichiers statiques (correction et uploads)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/correction', express.static(path.join(__dirname, 'correction')));
+app.use('/correction-recettes', express.static(path.join(__dirname, 'correction-recettes')));
+app.use('/correction-animals', express.static(path.join(__dirname, 'correction-animals')));
 
 // Middleware CORS
 app.use((req, res, next) => {
@@ -49,117 +54,130 @@ app.use((req, res, next) => {
 // --- 3. Documentation Swagger ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// --- 4. Schéma de Validation (Joi) ---
-const recipeSchema = Joi.object({
-    title: Joi.string().min(3).required(),
-    category: Joi.string().valid('Entrée', 'Plat Principal', 'Dessert').required(),
-    preparation_time_min: Joi.number().integer().min(1).required(),
-    ingredients: Joi.array().items(Joi.string()).min(1).required(),
-    is_vegetarian: Joi.boolean().default(false),
-    photo: Joi.string().required()
-});
+// --- 4. Schémas de Validation (Joi) ---
+const schemas = {
+    recipe: Joi.object({
+        title: Joi.string().min(3).required(),
+        category: Joi.string().valid('Entrée', 'Plat Principal', 'Dessert').required(),
+        preparation_time_min: Joi.number().integer().min(1).required(),
+        ingredients: Joi.array().items(Joi.string()).min(1).required(),
+        is_vegetarian: Joi.boolean().default(false),
+        photo: Joi.string().required()
+    }),
+    animal: Joi.object({
+        name: Joi.string().min(2).max(50).required(),
+        species: Joi.string().required(),
+        enclosure: Joi.string(),
+        age: Joi.number().integer().min(0),
+        health_status: Joi.string().valid('Sain', 'Malade', 'En quarantaine').default('Sain'),
+        adoption_status: Joi.string().valid('Disponible', 'Non disponible', 'Adopté').default('Non disponible'),
+        diet: Joi.array().items(Joi.string()),
+        image: Joi.string()
+    })
+};
 
-// --- 5. Configuration Multer pour l'Upload (Simulé) ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + Date.now() + ext);
-    }
-});
 
+// --- 5. Configuration Multer pour l'Upload (Générique) ---
 const upload = multer({
-    storage: storage,
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, 'uploads/'),
+        filename: (req, file, cb) => cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }),
     limits: { fileSize: 5 * 1024 * 1024 }
-}).single('recipe-photo');
+}).single('photo'); // Le champ 'photo' est utilisé comme nom générique dans le formulaire de l'élève
 
-// --- 6. Endpoint POST /upload (Gestion du Fichier) ---
+
+// --- 6. Endpoint POST /upload (Générique) ---
 app.post('/upload', (req, res) => {
     upload(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
-            return res.status(400).send({ message: `Upload error: ${err.message}` });
-        } else if (err) {
-            return res.status(500).send({ message: `Server error during upload: ${err.message}` });
+        if (err instanceof multer.MulterError || err || !req.file) {
+            return res.status(400).send({ message: 'Upload failed. Field name must be "photo".' });
         }
-
-        if (!req.file) {
-            return res.status(400).send({ message: 'No file uploaded. Field name must be "recipe-photo".' });
-        }
-
         res.status(200).send({ filename: req.file.filename });
     });
 });
 
-// --- 7. Nouvel Endpoint de Réinitialisation ---
+// --- 7. Endpoint POST /reset (Réinitialisation des deux collections) ---
 app.post('/reset', (req, res) => {
-    loadInitialData(); // Recharger les données du JSON
-    res.status(200).send({ message: "La base de données des recettes a été réinitialisée." });
+    loadInitialData();
+    res.status(200).send({ message: "La base de données des recettes et animaux a été réinitialisée." });
 });
 
-// --- 8. Routes CRUD pour /recipes ---
+// --- 8. Routes CRUD (Génériques et Spécifiques) ---
 
-app.post('/recipes', (req, res) => {
-    const { error } = recipeSchema.validate(req.body);
+// Fonction générique pour manipuler les collections
+function createCollectionRoutes(collectionName, schema, getId) {
+    const pluralName = collectionName + 's';
 
-    if (error) {
-        return res.status(400).send({ message: 'Validation failed', details: error.details[0].message });
-    }
+    // POST (Créer)
+    app.post(`/${pluralName}`, (req, res) => {
+        const { error } = schema.validate(req.body);
+        if (error) return res.status(400).send({ message: 'Validation failed', details: error.details[0].message });
 
-    const newRecipe = req.body;
-    newRecipe.id = nextRecipeId++;
-    newRecipe.likes = 0;
+        const newItem = req.body;
+        newItem.id = getId(); // Utilise la fonction de ID appropriée
 
-    db.recipes.push(newRecipe);
-    res.status(201).send(newRecipe);
-});
+        if (pluralName === 'recipes') newItem.likes = 0; // Initialisation spécifique aux recettes
 
-app.get('/recipes', (req, res) => {
-    let list = db.recipes;
+        db[pluralName].push(newItem);
+        res.status(201).send(newItem);
+    });
 
-    if (req.query.category) {
-        list = list.filter(r => r.category === req.query.category);
-    }
+    // GET (Lire la liste)
+    app.get(`/${pluralName}`, (req, res) => {
+        let list = db[pluralName];
 
-    if (req.query._sort === 'likes' && req.query._order === 'desc') {
-        list.sort((a, b) => b.likes - a.likes);
-    }
+        // Logique de filtrage simple (ex: /recipes?category=Dessert ou /animals?species=Lion)
+        if (req.query.category) list = list.filter(item => item.category === req.query.category);
+        if (req.query.species) list = list.filter(item => item.species === req.query.species);
+        if (req.query.health_status) list = list.filter(item => item.health_status === req.query.health_status);
 
-    res.send(list);
-});
+        // Logique de tri (ex: /recipes?_sort=likes&_order=desc)
+        if (pluralName === 'recipes' && req.query._sort === 'likes' && req.query._order === 'desc') {
+            list.sort((a, b) => b.likes - a.likes);
+        }
 
-app.get('/recipes/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const item = db.recipes.find(i => i.id === id);
-    if (!item) return res.status(404).send({ message: `Recipe not found.` });
-    res.send(item);
-});
+        res.send(list);
+    });
 
-app.patch('/recipes/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    let itemIndex = db.recipes.findIndex(i => i.id === id);
-    if (itemIndex === -1) return res.status(404).send({ message: `Recipe not found.` });
+    // GET par ID
+    app.get(`/${pluralName}/:id`, (req, res) => {
+        const id = parseInt(req.params.id);
+        const item = db[pluralName].find(i => i.id === id);
+        if (!item) return res.status(404).send({ message: `${collectionName} not found.` });
+        res.send(item);
+    });
 
-    db.recipes[itemIndex] = { ...db.recipes[itemIndex], ...req.body };
-    res.send(db.recipes[itemIndex]);
-});
+    // PATCH (Modifier partiellement)
+    app.patch(`/${pluralName}/:id`, (req, res) => {
+        const id = parseInt(req.params.id);
+        let itemIndex = db[pluralName].findIndex(i => i.id === id);
+        if (itemIndex === -1) return res.status(404).send({ message: `${collectionName} not found.` });
 
-app.delete('/recipes/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const initialLength = db.recipes.length;
+        db[pluralName][itemIndex] = { ...db[pluralName][itemIndex], ...req.body };
+        res.send(db[pluralName][itemIndex]);
+    });
 
-    db.recipes = db.recipes.filter(i => i.id !== id);
+    // DELETE
+    app.delete(`/${pluralName}/:id`, (req, res) => {
+        const id = parseInt(req.params.id);
+        const initialLength = db[pluralName].length;
 
-    if (db.recipes.length === initialLength) {
-        return res.status(404).send({ message: `Recipe not found.` });
-    }
-    res.status(204).send();
-});
+        db[pluralName] = db[pluralName].filter(i => i.id !== id);
 
+        if (db[pluralName].length === initialLength) return res.status(404).send({ message: `${collectionName} not found.` });
+        res.status(204).send();
+    });
+}
+
+// Création des routes pour les Recettes
+createCollectionRoutes('recipe', schemas.recipe, () => nextRecipeId++);
+
+// Création des routes pour les Animaux
+createCollectionRoutes('animal', schemas.animal, () => nextAnimalId++);
 
 // --- 9. Démarrage du Serveur ---
 app.listen(PORT, () => {
-    console.log(`Recipe Vault API prêt sur le port ${PORT}`);
-    console.log(`Endpoint de réinitialisation: POST /reset`);
+    console.log(`Serveur Multi-API prêt sur le port ${PORT}`);
+    console.log(`Endpoints actifs: /recipes, /animals, /upload, /reset, /api-docs`);
 });
