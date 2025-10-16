@@ -1,13 +1,17 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API de Formation Frontend (Recettes & Zoopédia)",
+        "title": "API de Formation Frontend (Recettes, Zoopédia, Espace, Expéditions)",
         "version": "1.0.0",
         "description": "API didactique complète (CRUD, Validation, Multi-Projets) pour les étudiants seniors. Les données sont en mémoire et réinitialisées via POST /reset."
     },
     "servers": [
         {
-            "url": "https://fake-rest-apis.onrender.com",
+            "url": "http://localhost:3000",
+            "description": "Serveur de développement"
+        },
+        {
+            "url": "https://[VOTRE_URL_RENDER]",
             "description": "Serveur déployé"
         }
     ],
@@ -19,6 +23,14 @@
         {
             "name": "Animals",
             "description": "Gestion des fiches animales (CRUD, Statut)."
+        },
+        {
+            "name": "Planets",
+            "description": "Gestion du catalogue d'exploration spatiale."
+        },
+        {
+            "name": "Expeditions",
+            "description": "Planification et suivi des missions spatiales."
         },
         {
             "name": "System",
@@ -78,7 +90,7 @@
                     "System"
                 ],
                 "summary": "RESET: Réinitialisation de toutes les données",
-                "description": "Réinitialise les collections /recipes et /animals à leur état initial (initialData.json).",
+                "description": "Réinitialise les collections /recipes, /animals, /planets et /expeditions à leur état initial.",
                 "responses": {
                     "200": {
                         "description": "Réinitialisation effectuée avec succès."
@@ -92,7 +104,6 @@
                     "Recipes"
                 ],
                 "summary": "READ: Liste des recettes",
-                "description": "Récupère la liste. Supporte le filtrage (?category) et le tri (?_sort=likes&_order=desc).",
                 "responses": {
                     "200": {
                         "description": "Liste des recettes",
@@ -114,7 +125,6 @@
                     "Recipes"
                 ],
                 "summary": "CREATE: Ajout d'une nouvelle recette",
-                "description": "Ajoute une nouvelle recette. Validation requise par Joi.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -151,7 +161,6 @@
                     "Recipes"
                 ],
                 "summary": "UPDATE: Mise à jour partielle (ex: likes ou photo)",
-                "description": "Utilisé pour modifier le compteur de 'likes' ou d'autres champs de la recette.",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -188,7 +197,6 @@
                     "Animals"
                 ],
                 "summary": "READ: Liste des animaux",
-                "description": "Récupère la liste. Supporte le filtrage (?species ou ?health_status).",
                 "responses": {
                     "200": {
                         "description": "Liste des animaux",
@@ -210,7 +218,6 @@
                     "Animals"
                 ],
                 "summary": "CREATE: Ajout d'un nouvel animal",
-                "description": "Ajoute une nouvelle fiche. Validation Joi requise.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -247,7 +254,6 @@
                     "Animals"
                 ],
                 "summary": "UPDATE: Mise à jour partielle (Statut de santé/Adoption)",
-                "description": "Utilisé pour modifier le statut ou l'enclos (PATCH).",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -271,6 +277,187 @@
                     "Animals"
                 ],
                 "summary": "DELETE: Suppression de la fiche (Adoption/Retrait)",
+                "responses": {
+                    "204": {
+                        "description": "Suppression réussie"
+                    }
+                }
+            }
+        },
+        "/planets": {
+            "get": {
+                "tags": [
+                    "Planets"
+                ],
+                "summary": "READ: Liste des planètes",
+                "responses": {
+                    "200": {
+                        "description": "Liste des planètes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Planet"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Planets"
+                ],
+                "summary": "CREATE: Ajout d'une nouvelle découverte",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PlanetCreation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Création réussie"
+                    },
+                    "400": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/planets/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "patch": {
+                "tags": [
+                    "Planets"
+                ],
+                "summary": "UPDATE: Mise à jour du statut (PATCH)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PlanetPatch"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour réussie"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Planets"
+                ],
+                "summary": "DELETE: Retrait de la planète du catalogue",
+                "responses": {
+                    "204": {
+                        "description": "Suppression réussie"
+                    }
+                }
+            }
+        },
+        "/expeditions": {
+            "get": {
+                "tags": [
+                    "Expeditions"
+                ],
+                "summary": "READ: Liste des expéditions",
+                "responses": {
+                    "200": {
+                        "description": "Liste des expéditions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Expedition"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Expeditions"
+                ],
+                "summary": "CREATE: Planification d'une nouvelle expédition",
+                "description": "Nécessite un 'planet_id' valide.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpeditionCreation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Création réussie"
+                    },
+                    "400": {
+                        "description": "Erreur de validation ou ID de planète invalide."
+                    }
+                }
+            }
+        },
+        "/expeditions/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "patch": {
+                "tags": [
+                    "Expeditions"
+                ],
+                "summary": "UPDATE: Mise à jour du statut ou de l'équipage (PATCH)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpeditionPatch"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour réussie"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Expeditions"
+                ],
+                "summary": "DELETE: Annulation de l'expédition",
                 "responses": {
                     "204": {
                         "description": "Suppression réussie"
@@ -315,8 +502,7 @@
                         "type": "boolean"
                     },
                     "photo": {
-                        "type": "string",
-                        "description": "Nom du fichier photo (ex: 'curry.jpg')."
+                        "type": "string"
                     }
                 }
             },
@@ -348,8 +534,7 @@
                         "type": "boolean"
                     },
                     "photo": {
-                        "type": "string",
-                        "description": "Nom du fichier photo obtenu après l'upload."
+                        "type": "string"
                     }
                 }
             },
@@ -357,12 +542,10 @@
                 "type": "object",
                 "properties": {
                     "likes": {
-                        "type": "integer",
-                        "description": "Pour incrémenter le compteur de 'J'aime'."
+                        "type": "integer"
                     },
                     "photo": {
-                        "type": "string",
-                        "description": "Modification de la photo (nom du fichier)."
+                        "type": "string"
                     }
                 }
             },
@@ -402,8 +585,7 @@
                         "type": "string"
                     },
                     "image": {
-                        "type": "string",
-                        "description": "Nom du fichier image (ex: 'leo.png')."
+                        "type": "string"
                     }
                 }
             },
@@ -430,8 +612,7 @@
                         "type": "integer"
                     },
                     "image": {
-                        "type": "string",
-                        "description": "Nom du fichier photo obtenu après l'upload."
+                        "type": "string"
                     }
                 }
             },
@@ -449,6 +630,160 @@
                     },
                     "image": {
                         "type": "string"
+                    }
+                }
+            },
+            "Planet": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "Tellurique",
+                            "Gazeuse",
+                            "Lune"
+                        ]
+                    },
+                    "distance_al": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "gaseous": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Connue",
+                            "Candidat Habitable",
+                            "Habitable Confirmé"
+                        ]
+                    },
+                    "discovery_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PlanetCreation": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "type",
+                    "distance_al",
+                    "icon"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "distance_al": {
+                        "type": "number"
+                    },
+                    "gaseous": {
+                        "type": "boolean"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PlanetPatch": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "distance_al": {
+                        "type": "number"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Expedition": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "planet_id": {
+                        "type": "integer",
+                        "description": "ID de la planète de destination."
+                    },
+                    "destination_name": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Nom de la planète (ajouté par le serveur au GET)."
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "En cours",
+                            "Terminée",
+                            "Annulée"
+                        ]
+                    },
+                    "crew_size": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ExpeditionCreation": {
+                "type": "object",
+                "required": [
+                    "title",
+                    "planet_id",
+                    "date"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "planet_id": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "crew_size": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ExpeditionPatch": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Mise à jour du statut de la mission."
+                    },
+                    "crew_size": {
+                        "type": "integer",
+                        "description": "Modification de la taille de l'équipage."
                     }
                 }
             }

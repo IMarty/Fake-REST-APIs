@@ -29,21 +29,6 @@
             ],
             "is_vegetarian": true,
             "photo": "curry.jpg"
-        },
-        {
-            "id": 503,
-            "title": "Soupe à l'Oignon Gratinée",
-            "category": "Entrée",
-            "likes": 28,
-            "preparation_time_min": 60,
-            "ingredients": [
-                "Oignons",
-                "Bouillon de bœuf",
-                "Pain",
-                "Fromage"
-            ],
-            "is_vegetarian": false,
-            "photo": "soupe_oignon.jpg"
         }
     ],
     "animals": [
@@ -59,32 +44,101 @@
                 "Viande"
             ],
             "image": "leo.png"
+        }
+    ],
+    "planets": [
+        {
+            "id": 1001,
+            "name": "Mercure",
+            "type": "Tellurique",
+            "distance_al": 0.000016,
+            "gaseous": false,
+            "status": "Connue",
+            "discovery_date": "Antiquité",
+            "icon": "mercury.svg"
         },
         {
-            "id": 2,
-            "name": "Kira",
-            "species": "Faucon Pèlerin",
-            "enclosure": "Volerie A",
-            "age": 2,
-            "health_status": "Malade",
-            "adoption_status": "Non disponible",
-            "diet": [
-                "Petits mammifères"
-            ],
-            "image": "kira.png"
+            "id": 1002,
+            "name": "Mars",
+            "type": "Tellurique",
+            "distance_al": 0.000030,
+            "gaseous": false,
+            "status": "Connue",
+            "discovery_date": "Antiquité",
+            "icon": "mars.svg"
         },
         {
-            "id": 3,
-            "name": "Nala",
-            "species": "Chat Domestique",
-            "enclosure": "Pension B",
-            "age": 1,
-            "health_status": "Sain",
-            "adoption_status": "Disponible",
-            "diet": [
-                "Croquettes"
-            ],
-            "image": "nala.png"
+            "id": 1003,
+            "name": "Jupiter",
+            "type": "Gazeuse",
+            "distance_al": 0.000082,
+            "gaseous": true,
+            "status": "Connue",
+            "discovery_date": "Antiquité",
+            "icon": "jupiter.svg"
+        },
+        {
+            "id": 1004,
+            "name": "Saturne",
+            "type": "Gazeuse",
+            "distance_al": 0.000150,
+            "gaseous": true,
+            "status": "Connue",
+            "discovery_date": "Antiquité",
+            "icon": "saturn.svg"
+        },
+        {
+            "id": 1005,
+            "name": "Planète Neuf",
+            "type": "Hypothétique",
+            "distance_al": 0.002,
+            "gaseous": true,
+            "status": "Mystère",
+            "discovery_date": "2016-01-20",
+            "icon": "planet9.svg",
+            "joke": "Elle ne vient jamais aux réunions, elle est toujours trop loin."
+        }
+    ],
+    "expeditions": [
+        {
+            "id": 201,
+            "title": "Mariner 10",
+            "planet_id": 1001,
+            "date": "1973-11-03",
+            "status": "Terminée",
+            "crew_size": 0
+        },
+        {
+            "id": 202,
+            "title": "Perseverance Rover",
+            "planet_id": 1002,
+            "date": "2020-07-30",
+            "status": "En cours",
+            "crew_size": 0
+        },
+        {
+            "id": 203,
+            "title": "Voyager 1",
+            "planet_id": 1003,
+            "date": "1977-09-05",
+            "status": "Terminée",
+            "crew_size": 0
+        },
+        {
+            "id": 204,
+            "title": "Cassini-Huygens",
+            "planet_id": 1004,
+            "date": "1997-10-15",
+            "status": "Terminée",
+            "crew_size": 0
+        },
+        {
+            "id": 205,
+            "title": "Envoi de la sonde 'Cache-cache'",
+            "planet_id": 1005,
+            "date": "2035-12-01",
+            "status": "Annulée",
+            "crew_size": 1
         }
     ]
 }
