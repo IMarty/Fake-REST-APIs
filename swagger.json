@@ -11,7 +11,7 @@
             "description": "Serveur de développement"
         },
         {
-            "url": "https://[VOTRE_URL_RENDER]",
+            "url": "https://fake-rest-apis.onrender.com",
             "description": "Serveur déployé"
         }
     ],
