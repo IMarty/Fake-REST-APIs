@@ -71,7 +71,7 @@ const schemas = {
         preparation_time_min: Joi.number().integer().min(1).required(),
         ingredients: Joi.array().items(Joi.string()).min(1).required(),
         is_vegetarian: Joi.boolean().default(false),
-        photo: Joi.string().required()
+        photo: Joi.string()
     }),
 
     animal: Joi.object({
@@ -82,7 +82,7 @@ const schemas = {
         health_status: Joi.string().valid('Sain', 'Malade', 'En quarantaine').default('Sain'),
         adoption_status: Joi.string().valid('Disponible', 'Non disponible', 'Adopté').default('Non disponible'),
         diet: Joi.array().items(Joi.string()),
-        image: Joi.string().required()
+        image: Joi.string()
     }),
 
     planet: Joi.object({
@@ -90,7 +90,7 @@ const schemas = {
         type: Joi.string().valid('Tellurique', 'Gazeuse', 'Lune').required(),
         distance_al: Joi.number().min(0).required(),
         gaseous: Joi.boolean().default(false),
-        icon: Joi.string().required()
+        icon: Joi.string()
     }),
 
     // NOUVEAU: Schéma des expéditions
